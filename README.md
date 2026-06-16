@@ -9,6 +9,7 @@ Drop an audio file, get an **inaudible seamless loop**, then save it as a single
 ## Features
 
 - **Drag & drop** any audio the browser can decode — WAV, MP3, OGG, FLAC, M4A…
+- **Pick the loop region** — drag two handles over the waveform to select exactly the segment you want to loop; everything outside the selection is dimmed and a live readout shows the start/end/length.
 - **Equal-power crossfade loop** — folds the tail back over the head so the end → start transition is click-free, with an adjustable crossfade (default **400 ms**) and optional **zero-crossing snap**.
 - **Live preview** — loop the result instantly and A/B it against the original.
 - **Export a single loop** — the tiny seamless unit, perfect for game engines, web players, or anything that loops natively.
@@ -19,8 +20,9 @@ Drop an audio file, get an **inaudible seamless loop**, then save it as a single
 ## How to use
 
 1. Open the [app](https://lukaskornis.github.io/seamless-loop/) and drop in an audio file.
-2. Adjust the **Crossfade** slider and hit **Preview loop** until the seam is inaudible.
-3. Either **Download single loop**, or set a **Length** + **Format** and click **Generate & download**.
+2. **Drag the two handles** over the waveform to select the segment you want to loop.
+3. Adjust the **Crossfade** slider and hit **Preview loop** until the seam is inaudible.
+4. Either **Download single loop**, or set a **Length** + **Format** and click **Generate & download**.
 
 ## Why it's seamless
 

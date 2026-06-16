@@ -28,7 +28,15 @@
   #drop .big{font-size:18px; font-weight:600}
   #drop .small{color:var(--muted); margin-top:6px}
   #drop.loaded{padding:22px 20px; text-align:left}
-  canvas{width:100%; height:120px; display:block; background:var(--panel2); border-radius:10px; margin-top:14px}
+  #waveWrap{position:relative; height:120px; margin-top:14px; touch-action:none; user-select:none; -webkit-user-select:none}
+  #waveWrap.hidden{display:none!important}
+  #wave{position:absolute; inset:0; width:100%; height:100%; display:block; background:var(--panel2); border-radius:10px}
+  .handle{position:absolute; top:0; bottom:0; width:16px; margin-left:-8px; cursor:ew-resize; z-index:3; touch-action:none}
+  .handle::before{content:''; position:absolute; left:7px; top:0; bottom:0; width:2px; background:var(--accent2)}
+  .handle::after{content:''; position:absolute; left:2px; top:50%; transform:translateY(-50%); width:12px; height:30px; border-radius:4px; background:var(--accent2); box-shadow:0 1px 4px rgba(0,0,0,.5)}
+  .selInfo{margin-top:10px; color:var(--muted); font-size:13px; text-align:center}
+  .selInfo.hidden{display:none!important}
+  .selInfo b{color:var(--txt)}
   .hidden{display:none!important}
   .row{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end}
   .field{flex:1; min-width:140px}
@@ -84,7 +92,12 @@
       <div class="small" data-i18n="dropSmall">or click to browse — WAV, MP3, OGG, FLAC, M4A …</div>
       <input id="file" type="file" accept="audio/*" class="hidden">
     </div>
-    <canvas id="wave" class="hidden"></canvas>
+    <div id="waveWrap" class="hidden">
+      <canvas id="wave"></canvas>
+      <div class="handle" id="hStart"></div>
+      <div class="handle" id="hEnd"></div>
+    </div>
+    <div class="selInfo hidden" id="selInfo"></div>
   </div>
 
   <div id="editor" class="card hidden">
@@ -459,7 +472,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
 (()=>{
   "use strict";
   const $=id=>document.getElementById(id);
-  const drop=$('drop'), fileInput=$('file'), waveCanvas=$('wave');
+  const drop=$('drop'), fileInput=$('file'), waveCanvas=$('wave'), waveWrap=$('waveWrap'), hStart=$('hStart'), hEnd=$('hEnd'), selInfo=$('selInfo');
   const editor=$('editor'), exporter=$('exporter');
   const xf=$('xf'), xfVal=$('xfVal'), snap=$('snap');
   const playLoopBtn=$('playLoop'), playOrigBtn=$('playOrig'), stopBtn=$('stop');
@@ -477,6 +490,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   let busy=false;
   let loadedInfo=null;    // {dur,ch,sr} of current file, for re-rendering on language change
   let lastStatusKey=null; // {key,vars,cls} of last translatable status
+  let selStart=0, selEnd=0; // selected loop region, in source samples
 
   const ctx=()=> ac||(ac=new (window.AudioContext||window.webkitAudioContext)());
 
@@ -497,7 +511,8 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
       estLine:"Loop unit: {loop} · output: {out} · est. size: {size}",
       bigWarn:" — that's a large file; consider MP3 or a shorter length.",
       done:"Done ✓", failedPrefix:"Failed: ", memHint:" — try MP3 or a shorter length.",
-      encoding:"Encoding… {p}%", enterLen:"Enter a length greater than 0."
+      encoding:"Encoding… {p}%", enterLen:"Enter a length greater than 0.",
+      selection:"Selection: {a}s → {b}s · loop {len}s · drag the handles to pick the region"
     },
     lt:{
       title:"Sklandžių kilpų kūrėjas", badge:"veikia jūsų naršyklėje · niekas neįkeliama",
@@ -514,7 +529,8 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
       estLine:"Kilpos ilgis: {loop} · rezultatas: {out} · numatomas dydis: {size}",
       bigWarn:" — tai didelis failas; rinkitės MP3 arba trumpesnę trukmę.",
       done:"Atlikta ✓", failedPrefix:"Klaida: ", memHint:" — bandykite MP3 arba trumpesnę trukmę.",
-      encoding:"Koduojama… {p}%", enterLen:"Įveskite trukmę, didesnę už 0."
+      encoding:"Koduojama… {p}%", enterLen:"Įveskite trukmę, didesnę už 0.",
+      selection:"Pasirinkta: {a}s → {b}s · kilpa {len}s · vilkite rankenėles regionui pasirinkti"
     },
     ru:{
       title:"Создание бесшовных лупов", badge:"работает в браузере · ничего не загружается",
@@ -531,7 +547,8 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
       estLine:"Луп: {loop} · результат: {out} · примерный размер: {size}",
       bigWarn:" — это большой файл; выберите MP3 или меньшую длительность.",
       done:"Готово ✓", failedPrefix:"Ошибка: ", memHint:" — попробуйте MP3 или меньшую длительность.",
-      encoding:"Кодирование… {p}%", enterLen:"Введите длительность больше 0."
+      encoding:"Кодирование… {p}%", enterLen:"Введите длительность больше 0.",
+      selection:"Выделение: {a}s → {b}s · луп {len}s · перетащите маркеры, чтобы выбрать участок"
     }
   };
   const SUPPORTED=['en','lt','ru'];
@@ -555,6 +572,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     document.querySelectorAll('.lang').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
     if(loadedInfo) renderFileInfo();
     if(unitChannels) updateEst();
+    if(srcBuffer) updateSelInfo();
     if(lastStatusKey){ status.textContent=t(lastStatusKey.key,lastStatusKey.vars); status.className='status '+(lastStatusKey.cls||''); }
   }
   document.querySelectorAll('.lang').forEach(b=>b.addEventListener('click',()=>{
@@ -583,7 +601,9 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     drop.querySelector('.big').textContent=file.name;
     loadedInfo={dur:srcBuffer.duration, ch:numCh, sr:sampleRate};
     renderFileInfo();
-    waveCanvas.classList.remove('hidden');
+    selStart=0; selEnd=srcBuffer.length;
+    waveWrap.classList.remove('hidden');
+    selInfo.classList.remove('hidden');
     editor.classList.remove('hidden');
     exporter.classList.remove('hidden');
     rebuild();
@@ -591,9 +611,9 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   }
 
   // ---------- loop building ----------
-  function nearestZeroCross(data, idx, window){
+  function nearestZeroCross(data, idx, window, loB, hiB){
     let best=idx, bestDist=Infinity;
-    const lo=Math.max(1,idx-window), hi=Math.min(data.length-1,idx+window);
+    const lo=Math.max(loB==null?1:loB,idx-window), hi=Math.min(hiB==null?data.length-1:hiB,idx+window);
     for(let i=lo;i<=hi;i++){
       if((data[i-1]<=0&&data[i]>0)||(data[i-1]>=0&&data[i]<0)){
         const d=Math.abs(i-idx);
@@ -605,48 +625,79 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
 
   // Equal-power crossfade: fold the tail back over the head so end→start is seamless.
   function buildLoopUnit(){
-    const N=srcBuffer.length;
+    const s0=selStart, e0=selEnd, M=e0-s0;  // selected segment in source samples
     let f=Math.round(parseInt(xf.value,10)/1000*sampleRate);
-    f=Math.max(2,Math.min(f,Math.floor(N/2)));
-    let L=N-f;                              // output (loop unit) length
+    f=Math.max(2,Math.min(f,Math.floor(M/2)));
+    let L=M-f;                              // output (loop unit) length
     if(snap.checked){
-      const snapped=nearestZeroCross(srcBuffer.getChannelData(0), L, Math.round(sampleRate*0.005));
-      L=Math.max(f+1,Math.min(snapped,N-2));
-      f=N-L;
+      const snapped=nearestZeroCross(srcBuffer.getChannelData(0), s0+L, Math.round(sampleRate*0.005), s0+1, e0-1);
+      L=Math.max(f+1,Math.min(snapped-s0,M-2));
+      f=M-L;
     }
     const out=[];
     for(let c=0;c<numCh;c++){
       const s=srcBuffer.getChannelData(c);
       const o=new Float32Array(L);
-      o.set(s.subarray(0,L));
+      for(let i=0;i<L;i++) o[i]=s[s0+i];
       for(let i=0;i<f;i++){
         const t=(i+0.5)/f;
         const win=Math.sin(t*Math.PI/2), wout=Math.cos(t*Math.PI/2);
-        o[i]=s[i]*win + s[i+L]*wout;        // head fades in, tail fades out
+        o[i]=s[s0+i]*win + s[s0+L+i]*wout;  // head fades in, tail fades out
       }
       out.push(o);
     }
     unitChannels=out; unitLength=L;
   }
 
-  function rebuild(){ if(srcBuffer){ buildLoopUnit(); drawWave(); updateEst(); } }
+  function rebuild(){ if(srcBuffer){ buildLoopUnit(); drawWave(); updateEst(); updateSelInfo(); } }
 
-  // ---------- waveform ----------
+  // ---------- waveform + region selection ----------
   function drawWave(){
+    if(!srcBuffer) return;
     const dpr=window.devicePixelRatio||1;
-    const w=waveCanvas.clientWidth, h=120;
+    const w=waveWrap.clientWidth, h=120;
     waveCanvas.width=w*dpr; waveCanvas.height=h*dpr;
-    const g=waveCanvas.getContext('2d'); g.scale(dpr,dpr);
+    const g=waveCanvas.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
     g.clearRect(0,0,w,h);
-    const data=unitChannels[0], step=Math.max(1,Math.floor(data.length/w)), mid=h/2;
+    const data=srcBuffer.getChannelData(0), N=data.length, step=Math.max(1,Math.floor(N/w)), mid=h/2;
     g.strokeStyle='#5b8cff'; g.globalAlpha=.9; g.beginPath();
     for(let x=0;x<w;x++){
-      let min=1,max=-1;
-      for(let i=0;i<step;i++){ const v=data[x*step+i]||0; if(v<min)min=v; if(v>max)max=v; }
+      let min=1,max=-1; const base=x*step;
+      for(let i=0;i<step;i++){ const v=data[base+i]||0; if(v<min)min=v; if(v>max)max=v; }
       g.moveTo(x,mid+min*mid*0.95); g.lineTo(x,mid+max*mid*0.95);
     }
     g.stroke();
+    const xs=selStart/N*w, xe=selEnd/N*w;       // dim outside the selection, tint inside
+    g.globalAlpha=1; g.fillStyle='rgba(14,17,22,0.62)';
+    g.fillRect(0,0,xs,h); g.fillRect(xe,0,w-xe,h);
+    g.fillStyle='rgba(51,214,166,0.10)'; g.fillRect(xs,0,Math.max(0,xe-xs),h);
+    positionHandles();
   }
+  function positionHandles(){
+    if(!srcBuffer) return;
+    const N=srcBuffer.length, w=waveWrap.clientWidth;
+    hStart.style.left=(selStart/N*w)+'px';
+    hEnd.style.left=(selEnd/N*w)+'px';
+  }
+  function updateSelInfo(){
+    if(!srcBuffer) return;
+    selInfo.innerHTML=t('selection',{
+      a:(selStart/sampleRate).toFixed(2), b:(selEnd/sampleRate).toFixed(2), len:((selEnd-selStart)/sampleRate).toFixed(2)
+    });
+  }
+  let dragging=null;
+  const fracFromX=cx=>{ const r=waveWrap.getBoundingClientRect(); return Math.min(1,Math.max(0,(cx-r.left)/r.width)); };
+  function onDragMove(e){
+    if(!dragging||!srcBuffer) return;
+    const N=srcBuffer.length, smp=Math.round(fracFromX(e.clientX)*N), gap=Math.max(Math.round(sampleRate*0.05),4);
+    if(dragging==='start') selStart=Math.max(0,Math.min(smp,selEnd-gap));
+    else selEnd=Math.min(N,Math.max(smp,selStart+gap));
+    rebuild();
+  }
+  function endDrag(){ dragging=null; window.removeEventListener('pointermove',onDragMove); window.removeEventListener('pointerup',endDrag); }
+  const beginDrag=which=>e=>{ e.preventDefault(); dragging=which; window.addEventListener('pointermove',onDragMove); window.addEventListener('pointerup',endDrag); };
+  hStart.addEventListener('pointerdown',beginDrag('start'));
+  hEnd.addEventListener('pointerdown',beginDrag('end'));
 
   // ---------- preview ----------
   function stopPreview(){ if(source){ try{source.stop();}catch(_){ } source=null; } }
@@ -765,7 +816,7 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     return h?`${h}h ${m}m ${sec}s`:m?`${m}m ${sec}s`:`${sec}s`; }
   function fmtBytes(b){ const u=['B','KB','MB','GB']; let i=0; while(b>=1024&&i<u.length-1){b/=1024;i++;} return b.toFixed(b<10&&i?1:0)+' '+u[i]; }
 
-  window.addEventListener('resize',()=>{ if(unitChannels) drawWave(); });
+  window.addEventListener('resize',()=>{ if(srcBuffer) drawWave(); });
 
   applyLang();   // set initial language (saved preference → browser language → English)
 })();
