@@ -59,17 +59,29 @@
   .foot{color:var(--muted); font-size:12px; text-align:center; margin-top:24px}
   .badge{display:inline-block; background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:2px 10px; font-size:12px; color:var(--muted); margin-left:8px}
   a{color:var(--accent)}
+  .topbar{display:flex; justify-content:flex-end; margin-bottom:10px}
+  .langs{display:inline-flex; gap:3px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px}
+  .lang{background:transparent; border:0; color:var(--muted); padding:5px 13px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer}
+  .lang:hover{color:var(--txt)}
+  .lang.active{background:var(--accent); color:#fff}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Seamless Loop Maker <span class="badge">runs in your browser · nothing uploaded</span></h1>
-  <p class="sub">Drop an audio file, get an inaudible loop, then save it as a single loop or stretched to any length.</p>
+  <div class="topbar">
+    <div class="langs">
+      <button class="lang" data-lang="en">EN</button>
+      <button class="lang" data-lang="lt">LT</button>
+      <button class="lang" data-lang="ru">RU</button>
+    </div>
+  </div>
+  <h1><span data-i18n="title">Seamless Loop Maker</span> <span class="badge" data-i18n="badge">runs in your browser · nothing uploaded</span></h1>
+  <p class="sub" data-i18n="sub">Drop an audio file, get an inaudible loop, then save it as a single loop or stretched to any length.</p>
 
   <div class="card">
     <div id="drop">
-      <div class="big">Drop an audio file here</div>
-      <div class="small">or click to browse — WAV, MP3, OGG, FLAC, M4A …</div>
+      <div class="big" data-i18n="dropBig">Drop an audio file here</div>
+      <div class="small" data-i18n="dropSmall">or click to browse — WAV, MP3, OGG, FLAC, M4A …</div>
       <input id="file" type="file" accept="audio/*" class="hidden">
     </div>
     <canvas id="wave" class="hidden"></canvas>
@@ -78,44 +90,44 @@
   <div id="editor" class="card hidden">
     <div class="row">
       <div class="field">
-        <label>Crossfade <span class="slider-val" id="xfVal">120 ms</span></label>
+        <label><span data-i18n="crossfade">Crossfade</span> <span class="slider-val" id="xfVal">120 ms</span></label>
         <input id="xf" type="range" min="10" max="1000" value="120" step="5">
       </div>
       <div class="field" style="flex:0 0 auto">
         <label>&nbsp;</label>
-        <label class="check"><input id="snap" type="checkbox" checked> Snap to zero crossings</label>
+        <label class="check"><input id="snap" type="checkbox" checked> <span data-i18n="snap">Snap to zero crossings</span></label>
       </div>
     </div>
     <div class="btns">
-      <button id="playLoop" class="primary">▶ Preview loop</button>
-      <button id="playOrig">▶ Original</button>
-      <button id="stop">■ Stop</button>
+      <button id="playLoop" class="primary" data-i18n="previewLoop">▶ Preview loop</button>
+      <button id="playOrig" data-i18n="original">▶ Original</button>
+      <button id="stop" data-i18n="stop">■ Stop</button>
     </div>
   </div>
 
   <div id="exporter" class="card hidden">
     <div class="row">
       <div class="field">
-        <label>Length</label>
+        <label data-i18n="length">Length</label>
         <input id="amount" type="number" min="0" step="1" value="10">
       </div>
       <div class="field" style="flex:0 0 130px">
-        <label>Unit</label>
+        <label data-i18n="unitLabel">Unit</label>
         <select id="unit">
-          <option value="1">Seconds</option>
-          <option value="60" selected>Minutes</option>
-          <option value="3600">Hours</option>
+          <option value="1" data-i18n="seconds">Seconds</option>
+          <option value="60" selected data-i18n="minutes">Minutes</option>
+          <option value="3600" data-i18n="hours">Hours</option>
         </select>
       </div>
       <div class="field" style="flex:0 0 130px">
-        <label>Format</label>
+        <label data-i18n="format">Format</label>
         <select id="format">
           <option value="mp3" selected>MP3</option>
           <option value="wav">WAV</option>
         </select>
       </div>
       <div class="field" id="brWrap" style="flex:0 0 130px">
-        <label>MP3 quality</label>
+        <label data-i18n="mp3Quality">MP3 quality</label>
         <select id="bitrate">
           <option value="128" selected>128 kbps</option>
           <option value="192">192 kbps</option>
@@ -125,14 +137,14 @@
     </div>
     <div class="est" id="est"></div>
     <div class="btns">
-      <button id="dlLoop" class="go">⬇ Download single loop</button>
-      <button id="dlLen" class="go">⬇ Generate &amp; download</button>
+      <button id="dlLoop" class="go" data-i18n="dlLoop">⬇ Download single loop</button>
+      <button id="dlLen" class="go" data-i18n="dlLen">⬇ Generate &amp; download</button>
     </div>
     <div class="bar"><i id="prog"></i></div>
     <div class="status" id="status"></div>
   </div>
 
-  <div class="foot">100% local · your audio never leaves this page.</div>
+  <div class="foot" data-i18n="foot">100% local · your audio never leaves this page.</div>
 </div>
 
 <script>function lamejs(){function X(c){return new Int32Array(c)}function K(c){return new Float32Array(c)}function ca(c){if(1==c.length)return K(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(ca(c));return n}function Ia(c){if(1==c.length)return X(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(Ia(c));return n}function dc(c){if(1==c.length)return new Int16Array(c[0]);var k=c[0];c=c.slice(1);for(var n=[],u=0;u<k;u++)n.push(dc(c));return n}function Ob(c){if(1==c.length)return Array(c[0]);
@@ -463,8 +475,91 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   let numCh=2;
   let source=null;        // active AudioBufferSourceNode
   let busy=false;
+  let loadedInfo=null;    // {dur,ch,sr} of current file, for re-rendering on language change
+  let lastStatusKey=null; // {key,vars,cls} of last translatable status
 
   const ctx=()=> ac||(ac=new (window.AudioContext||window.webkitAudioContext)());
+
+  // ---------- i18n ----------
+  const I18N={
+    en:{
+      title:"Seamless Loop Maker", badge:"runs in your browser · nothing uploaded",
+      sub:"Drop an audio file, get an inaudible loop, then save it as a single loop or stretched to any length.",
+      dropBig:"Drop an audio file here", dropSmall:"or click to browse — WAV, MP3, OGG, FLAC, M4A …",
+      crossfade:"Crossfade", snap:"Snap to zero crossings",
+      previewLoop:"▶ Preview loop", original:"▶ Original", stop:"■ Stop",
+      length:"Length", unitLabel:"Unit", seconds:"Seconds", minutes:"Minutes", hours:"Hours",
+      format:"Format", mp3Quality:"MP3 quality",
+      dlLoop:"⬇ Download single loop", dlLen:"⬇ Generate & download",
+      foot:"100% local · your audio never leaves this page.",
+      decoding:"Decoding {name} …", decodeFail:"Could not decode that file. Try a WAV or MP3.",
+      fileInfo:"{dur} · {ch} · {sr} Hz — click to choose another", mono:"mono", stereo:"stereo",
+      estLine:"Loop unit: {loop} · output: {out} · est. size: {size}",
+      bigWarn:" — that's a large file; consider MP3 or a shorter length.",
+      done:"Done ✓", failedPrefix:"Failed: ", memHint:" — try MP3 or a shorter length.",
+      encoding:"Encoding… {p}%", enterLen:"Enter a length greater than 0."
+    },
+    lt:{
+      title:"Sklandžių kilpų kūrėjas", badge:"veikia jūsų naršyklėje · niekas neįkeliama",
+      sub:"Įkelkite garso failą, gaukite negirdimą kilpą ir išsaugokite ją kaip vieną kilpą arba ištęstą iki bet kokio ilgio.",
+      dropBig:"Vilkite garso failą čia", dropSmall:"arba spustelėkite pasirinkti — WAV, MP3, OGG, FLAC, M4A …",
+      crossfade:"Perėjimas", snap:"Pritraukti prie nulio taškų",
+      previewLoop:"▶ Peržiūrėti kilpą", original:"▶ Originalas", stop:"■ Stabdyti",
+      length:"Trukmė", unitLabel:"Vienetai", seconds:"Sekundės", minutes:"Minutės", hours:"Valandos",
+      format:"Formatas", mp3Quality:"MP3 kokybė",
+      dlLoop:"⬇ Atsisiųsti vieną kilpą", dlLen:"⬇ Sukurti ir atsisiųsti",
+      foot:"100% vietinė · jūsų garsas niekur nesiunčiamas.",
+      decoding:"Dekoduojama {name} …", decodeFail:"Nepavyko nuskaityti failo. Bandykite WAV arba MP3.",
+      fileInfo:"{dur} · {ch} · {sr} Hz — spustelėkite pasirinkti kitą", mono:"mono", stereo:"stereo",
+      estLine:"Kilpos ilgis: {loop} · rezultatas: {out} · numatomas dydis: {size}",
+      bigWarn:" — tai didelis failas; rinkitės MP3 arba trumpesnę trukmę.",
+      done:"Atlikta ✓", failedPrefix:"Klaida: ", memHint:" — bandykite MP3 arba trumpesnę trukmę.",
+      encoding:"Koduojama… {p}%", enterLen:"Įveskite trukmę, didesnę už 0."
+    },
+    ru:{
+      title:"Создание бесшовных лупов", badge:"работает в браузере · ничего не загружается",
+      sub:"Перетащите аудиофайл, получите бесшовный луп и сохраните его как один луп или растянутым на любую длину.",
+      dropBig:"Перетащите аудиофайл сюда", dropSmall:"или нажмите, чтобы выбрать — WAV, MP3, OGG, FLAC, M4A …",
+      crossfade:"Кроссфейд", snap:"Привязка к нулевым точкам",
+      previewLoop:"▶ Прослушать луп", original:"▶ Оригинал", stop:"■ Стоп",
+      length:"Длительность", unitLabel:"Единицы", seconds:"Секунды", minutes:"Минуты", hours:"Часы",
+      format:"Формат", mp3Quality:"Качество MP3",
+      dlLoop:"⬇ Скачать один луп", dlLen:"⬇ Создать и скачать",
+      foot:"100% локально · ваш звук никуда не отправляется.",
+      decoding:"Декодирование {name} …", decodeFail:"Не удалось прочитать файл. Попробуйте WAV или MP3.",
+      fileInfo:"{dur} · {ch} · {sr} Гц — нажмите, чтобы выбрать другой", mono:"моно", stereo:"стерео",
+      estLine:"Луп: {loop} · результат: {out} · примерный размер: {size}",
+      bigWarn:" — это большой файл; выберите MP3 или меньшую длительность.",
+      done:"Готово ✓", failedPrefix:"Ошибка: ", memHint:" — попробуйте MP3 или меньшую длительность.",
+      encoding:"Кодирование… {p}%", enterLen:"Введите длительность больше 0."
+    }
+  };
+  const SUPPORTED=['en','lt','ru'];
+  let lang=localStorage.getItem('lang');
+  if(!SUPPORTED.includes(lang)){ const b=(navigator.language||'en').slice(0,2).toLowerCase(); lang=SUPPORTED.includes(b)?b:'en'; }
+
+  function t(key,vars){
+    let s=(I18N[lang]&&I18N[lang][key])!=null?I18N[lang][key]:(I18N.en[key]!=null?I18N.en[key]:key);
+    if(vars) for(const k in vars) s=s.replace('{'+k+'}',vars[k]);
+    return s;
+  }
+  function renderFileInfo(){
+    if(!loadedInfo) return;
+    drop.querySelector('.small').textContent=t('fileInfo',{
+      dur:fmtTime(loadedInfo.dur), ch:loadedInfo.ch===1?t('mono'):t('stereo'), sr:loadedInfo.sr
+    });
+  }
+  function applyLang(){
+    document.documentElement.lang=lang;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
+    document.querySelectorAll('.lang').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+    if(loadedInfo) renderFileInfo();
+    if(unitChannels) updateEst();
+    if(lastStatusKey){ status.textContent=t(lastStatusKey.key,lastStatusKey.vars); status.className='status '+(lastStatusKey.cls||''); }
+  }
+  document.querySelectorAll('.lang').forEach(b=>b.addEventListener('click',()=>{
+    lang=b.dataset.lang; localStorage.setItem('lang',lang); applyLang();
+  }));
 
   // ---------- file handling ----------
   drop.addEventListener('click',()=>fileInput.click());
@@ -474,25 +569,25 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) loadFile(f); });
 
   async function loadFile(file){
-    setStatus('Decoding '+file.name+' …');
+    setStatus('decoding',{name:file.name});
     baseName=file.name.replace(/\.[^.]+$/,'') || 'loop';
     try{
       const buf=await file.arrayBuffer();
       srcBuffer=await ctx().decodeAudioData(buf);
     }catch(err){
-      setStatus('Could not decode that file. Try a WAV or MP3.','warn'); return;
+      setStatus('decodeFail',null,'warn'); return;
     }
     sampleRate=srcBuffer.sampleRate;
     numCh=Math.min(srcBuffer.numberOfChannels,2);
     drop.classList.add('loaded');
     drop.querySelector('.big').textContent=file.name;
-    drop.querySelector('.small').textContent=
-      `${fmtTime(srcBuffer.duration)} · ${numCh===1?'mono':'stereo'} · ${sampleRate} Hz — click to choose another`;
+    loadedInfo={dur:srcBuffer.duration, ch:numCh, sr:sampleRate};
+    renderFileInfo();
     waveCanvas.classList.remove('hidden');
     editor.classList.remove('hidden');
     exporter.classList.remove('hidden');
     rebuild();
-    setStatus('');
+    clearStatus();
   }
 
   // ---------- loop building ----------
@@ -584,9 +679,8 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     if(formatSel.value==='mp3') bytes=parseInt(bitrate.value,10)*1000/8*secs;
     else bytes=44+Math.round(secs*sampleRate)*numCh*2;
     const big=bytes>500*1024*1024;
-    est.innerHTML=`Loop unit: <b>${loopLen.toFixed(2)} s</b> · output: <b>${fmtTime(secs)}</b> · `+
-      `est. size: <b class="${big?'warn':''}">${fmtBytes(bytes)}</b>`+
-      (big?' — that\'s a large file; consider MP3 or a shorter length.':'');
+    const loop=`<b>${loopLen.toFixed(2)} s</b>`, out=`<b>${fmtTime(secs)}</b>`, size=`<b class="${big?'warn':''}">${fmtBytes(bytes)}</b>`;
+    est.innerHTML=t('estLine',{loop,out,size})+(big?t('bigWarn'):'');
   }
 
   // ---------- encoding helpers (streaming, bounded memory) ----------
@@ -634,10 +728,11 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
         }
         download(new Blob(parts,{type:'audio/wav'}), `${baseName}-${suffix}.wav`);
       }
-      setStatus('Done ✓');
+      setStatus('done');
     }catch(err){
       console.error(err);
-      setStatus('Failed: '+(err&&err.message||err)+(err&&/alloc|memory/i.test(err.message||'')?' — try MP3 or a shorter length.':''),'warn');
+      const msg=(err&&err.message)||err;
+      setStatusRaw(t('failedPrefix')+msg+(err&&/alloc|memory/i.test(err.message||'')?t('memHint'):''),'warn');
     }finally{ busy=false; setBusy(false); prog.style.width='0'; }
   }
 
@@ -645,14 +740,14 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   function tick(frac){
     prog.style.width=(frac*100).toFixed(1)+'%';
     const now=performance.now();
-    if(now-lastYield>40){ lastYield=now; setStatus('Encoding… '+(frac*100|0)+'%'); return new Promise(r=>setTimeout(r)); }
+    if(now-lastYield>40){ lastYield=now; setStatus('encoding',{p:(frac*100|0)}); return new Promise(r=>setTimeout(r)); }
     return Promise.resolve();
   }
 
   dlLoop.addEventListener('click',()=>generate(unitLength,'loop'));
   dlLen.addEventListener('click',()=>{
     const secs=targetSeconds();
-    if(secs<=0){ setStatus('Enter a length greater than 0.','warn'); return; }
+    if(secs<=0){ setStatus('enterLen',null,'warn'); return; }
     generate(Math.round(secs*sampleRate), Math.round(secs)+'s');
   });
 
@@ -662,13 +757,17 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     a.href=url; a.download=name; a.click();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
   }
-  function setStatus(msg,cls){ status.textContent=msg; status.className='status '+(cls||''); }
+  function setStatus(key,vars,cls){ lastStatusKey={key,vars,cls}; status.textContent=t(key,vars); status.className='status '+(cls||''); }
+  function setStatusRaw(msg,cls){ lastStatusKey=null; status.textContent=msg; status.className='status '+(cls||''); }
+  function clearStatus(){ lastStatusKey=null; status.textContent=''; status.className='status'; }
   function setBusy(b){ [dlLoop,dlLen,playLoopBtn,playOrigBtn].forEach(x=>x.disabled=b); }
   function fmtTime(s){ s=Math.round(s); const h=s/3600|0,m=(s%3600)/60|0,sec=s%60;
     return h?`${h}h ${m}m ${sec}s`:m?`${m}m ${sec}s`:`${sec}s`; }
   function fmtBytes(b){ const u=['B','KB','MB','GB']; let i=0; while(b>=1024&&i<u.length-1){b/=1024;i++;} return b.toFixed(b<10&&i?1:0)+' '+u[i]; }
 
   window.addEventListener('resize',()=>{ if(unitChannels) drawWave(); });
+
+  applyLang();   // set initial language (saved preference → browser language → English)
 })();
 </script>
 </body>
