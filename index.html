@@ -675,9 +675,9 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
   }
   function positionHandles(){
     if(!srcBuffer) return;
-    const N=srcBuffer.length, w=waveWrap.clientWidth;
-    hStart.style.left=(selStart/N*w)+'px';
-    hEnd.style.left=(selEnd/N*w)+'px';
+    const N=srcBuffer.length, w=waveWrap.clientWidth, pad=7;   // keep knobs visible at the very edges
+    hStart.style.left=Math.max(pad,Math.min(w-pad, selStart/N*w))+'px';
+    hEnd.style.left=Math.max(pad,Math.min(w-pad, selEnd/N*w))+'px';
   }
   function updateSelInfo(){
     if(!srcBuffer) return;
