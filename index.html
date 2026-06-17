@@ -88,9 +88,9 @@
 
   <div class="card">
     <div id="drop">
-      <div class="big" data-i18n="dropBig">Drop an audio file here</div>
-      <div class="small" data-i18n="dropSmall">or click to browse — WAV, MP3, OGG, FLAC, M4A …</div>
-      <input id="file" type="file" accept="audio/*" class="hidden">
+      <div class="big" data-i18n="dropBig">Drop an audio or video file here</div>
+      <div class="small" data-i18n="dropSmall">or click to browse — WAV, MP3, FLAC, MP4, MOV … (audio is pulled from video)</div>
+      <input id="file" type="file" accept="audio/*,video/*,.mp4,.m4a,.mov,.webm" class="hidden">
     </div>
     <div id="waveWrap" class="hidden">
       <canvas id="wave"></canvas>
@@ -499,14 +499,14 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     en:{
       title:"Seamless Loop Maker", badge:"runs in your browser · nothing uploaded",
       sub:"Drop an audio file, get an inaudible loop, then save it as a single loop or stretched to any length.",
-      dropBig:"Drop an audio file here", dropSmall:"or click to browse — WAV, MP3, OGG, FLAC, M4A …",
+      dropBig:"Drop an audio or video file here", dropSmall:"or click to browse — WAV, MP3, FLAC, MP4, MOV … (audio is pulled from video)",
       crossfade:"Crossfade", snap:"Snap to zero crossings",
       previewLoop:"▶ Preview loop", original:"▶ Original", stop:"■ Stop",
       length:"Length", unitLabel:"Unit", seconds:"Seconds", minutes:"Minutes", hours:"Hours",
       format:"Format", mp3Quality:"MP3 quality",
       dlLoop:"⬇ Download single loop", dlLen:"⬇ Generate & download",
       foot:"100% local · your audio never leaves this page.",
-      decoding:"Decoding {name} …", decodeFail:"Could not decode that file. Try a WAV or MP3.",
+      decoding:"Decoding {name} …", decodeFail:"Could not decode that file. Try a WAV, MP3, or MP4.",
       fileInfo:"{dur} · {ch} · {sr} Hz — click to choose another", mono:"mono", stereo:"stereo",
       estLine:"Loop unit: {loop} · output: {out} · est. size: {size}",
       bigWarn:" — that's a large file; consider MP3 or a shorter length.",
@@ -517,14 +517,14 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     lt:{
       title:"Sklandžių kilpų kūrėjas", badge:"veikia jūsų naršyklėje · niekas neįkeliama",
       sub:"Įkelkite garso failą, gaukite negirdimą kilpą ir išsaugokite ją kaip vieną kilpą arba ištęstą iki bet kokio ilgio.",
-      dropBig:"Vilkite garso failą čia", dropSmall:"arba spustelėkite pasirinkti — WAV, MP3, OGG, FLAC, M4A …",
+      dropBig:"Vilkite garso arba vaizdo failą čia", dropSmall:"arba spustelėkite pasirinkti — WAV, MP3, FLAC, MP4, MOV … (garsas ištraukiamas iš vaizdo)",
       crossfade:"Perėjimas", snap:"Pritraukti prie nulio taškų",
       previewLoop:"▶ Peržiūrėti kilpą", original:"▶ Originalas", stop:"■ Stabdyti",
       length:"Trukmė", unitLabel:"Vienetai", seconds:"Sekundės", minutes:"Minutės", hours:"Valandos",
       format:"Formatas", mp3Quality:"MP3 kokybė",
       dlLoop:"⬇ Atsisiųsti vieną kilpą", dlLen:"⬇ Sukurti ir atsisiųsti",
       foot:"100% vietinė · jūsų garsas niekur nesiunčiamas.",
-      decoding:"Dekoduojama {name} …", decodeFail:"Nepavyko nuskaityti failo. Bandykite WAV arba MP3.",
+      decoding:"Dekoduojama {name} …", decodeFail:"Nepavyko nuskaityti failo. Bandykite WAV, MP3 arba MP4.",
       fileInfo:"{dur} · {ch} · {sr} Hz — spustelėkite pasirinkti kitą", mono:"mono", stereo:"stereo",
       estLine:"Kilpos ilgis: {loop} · rezultatas: {out} · numatomas dydis: {size}",
       bigWarn:" — tai didelis failas; rinkitės MP3 arba trumpesnę trukmę.",
@@ -535,14 +535,14 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
     ru:{
       title:"Создание бесшовных лупов", badge:"работает в браузере · ничего не загружается",
       sub:"Перетащите аудиофайл, получите бесшовный луп и сохраните его как один луп или растянутым на любую длину.",
-      dropBig:"Перетащите аудиофайл сюда", dropSmall:"или нажмите, чтобы выбрать — WAV, MP3, OGG, FLAC, M4A …",
+      dropBig:"Перетащите аудио- или видеофайл сюда", dropSmall:"или нажмите, чтобы выбрать — WAV, MP3, FLAC, MP4, MOV … (звук извлекается из видео)",
       crossfade:"Кроссфейд", snap:"Привязка к нулевым точкам",
       previewLoop:"▶ Прослушать луп", original:"▶ Оригинал", stop:"■ Стоп",
       length:"Длительность", unitLabel:"Единицы", seconds:"Секунды", minutes:"Минуты", hours:"Часы",
       format:"Формат", mp3Quality:"Качество MP3",
       dlLoop:"⬇ Скачать один луп", dlLen:"⬇ Создать и скачать",
       foot:"100% локально · ваш звук никуда не отправляется.",
-      decoding:"Декодирование {name} …", decodeFail:"Не удалось прочитать файл. Попробуйте WAV или MP3.",
+      decoding:"Декодирование {name} …", decodeFail:"Не удалось прочитать файл. Попробуйте WAV, MP3 или MP4.",
       fileInfo:"{dur} · {ch} · {sr} Гц — нажмите, чтобы выбрать другой", mono:"моно", stereo:"стерео",
       estLine:"Луп: {loop} · результат: {out} · примерный размер: {size}",
       bigWarn:" — это большой файл; выберите MP3 или меньшую длительность.",
@@ -641,7 +641,9 @@ a.length>D&&(D=a.length,p=0|1.25*D+7200,r=new Int8Array(p));a=u.lame_encode_buff
       for(let i=0;i<L;i++) o[i]=s[s0+i];
       for(let i=0;i<f;i++){
         const t=(i+0.5)/f;
-        const win=Math.sin(t*Math.PI/2), wout=Math.cos(t*Math.PI/2);
+        // square-root constant-power crossfade: win²+wout²=1 at every t, so the
+        // summed power stays flat across the seam — no quiet dip, no linear sag.
+        const win=Math.sqrt(t), wout=Math.sqrt(1-t);
         o[i]=s[s0+i]*win + s[s0+L+i]*wout;  // head fades in, tail fades out
       }
       out.push(o);
